@@ -1,5 +1,8 @@
+
 import streamlit as st
 import pandas as pd
+import requests
+import io
 import traceback
 
 # Google Sheets 設定
@@ -11,21 +14,28 @@ SHEET_NAME_MAP = {
     "size": "尺寸"
 }
 
-# 加入參數 clear_on_reload
+def fetch_csv_with_requests(url):
+    response = requests.get(url)
+    response.raise_for_status()
+    return pd.read_csv(io.StringIO(response.text), header=None)
+
 @st.cache_data(show_spinner=False)
 def load_dropdown_options():
     sheet_id = SHEET_URL.split("/")[5]
     base_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet="
     options = {}
+
     for key, sheet_name in SHEET_NAME_MAP.items():
         url = base_url + sheet_name
         try:
-            df = pd.read_csv(url, header=None, encoding='utf-8')
+            df = fetch_csv_with_requests(url)
             options[key] = dict(zip(df[0], df[0]))
+            st.write(f"✅ 成功載入「{sheet_name}」，共 {len(df)} 筆")
         except Exception as e:
             error_msg = traceback.format_exc()
-            st.warning(f"⚠️ 無法載入「{sheet_name}」選項，請檢查分享權限或欄位格式。\n\n錯誤訊息:\n{error_msg}")
+            st.warning(f"⚠️ 無法載入「{sheet_name}」，請檢查分享權限或欄位格式。\n\n錯誤訊息:\n{error_msg}")
             options[key] = {}
+
     return options
 
 def generate_sku(category, feature, color, size):
@@ -35,23 +45,18 @@ def generate_sku(category, feature, color, size):
 st.set_page_config(page_title="Product SKU Generator", layout="centered")
 st.title("🧾 Product SKU Generator")
 
-# ✅ 按鈕清除快取
-if st.button("🔄 重新載入選單資料"):
-    st.cache_data.clear()
-    st.rerun()  # ⬅️ 強制重新執行 App
-
 options = load_dropdown_options()
 
 col1, col2 = st.columns(2)
 with col1:
     category = st.selectbox("Product Category", options.get("category", {}).keys())
-    size = st.selectbox("Size", options.get("size", {}).keys())
+    feature = st.selectbox("Feature", options.get("feature", {}).keys())
 with col2:
     color = st.selectbox("Color", options.get("color", {}).keys())
-    feature = st.selectbox("Feature", options.get("feature", {}).keys())
+    size = st.selectbox("Size", options.get("size", {}).keys())
 
 if st.button("➕ Generate SKU"):
-    if category and color and size and feature:
+    if category and feature and color and size:
         sku = generate_sku(
             options["category"][category],
             options["feature"][feature],
