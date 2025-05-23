@@ -62,4 +62,3 @@ if st.button("➕ Generate SKU"):
         st.warning("請完整選取所有欄位後再產生 SKU。")
 else:
     st.info("尚未產生任何 SKU。請從上方輸入資料。")
-
