@@ -47,13 +47,11 @@ st.title("🧾 Product SKU Generator")
 
 options = load_dropdown_options()
 
-col1, col2 = st.columns(2)
-with col1:
-    category = st.selectbox("Product Category", options.get("category", {}).keys())
-    feature = st.selectbox("Feature", options.get("feature", {}).keys())
-with col2:
-    color = st.selectbox("Color", options.get("color", {}).keys())
-    size = st.selectbox("Size", options.get("size", {}).keys())
+category = st.selectbox("Product Category", options.get("category", {}).keys())
+feature = st.selectbox("Feature", options.get("feature", {}).keys())
+color = st.selectbox("Color", options.get("color", {}).keys())
+size = st.selectbox("Size", options.get("size", {}).keys())
+
 
 if st.button("➕ Generate SKU"):
     if category and feature and color and size:
