@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 
@@ -19,7 +20,7 @@ def load_dropdown_options():
         url = base_url + sheet_name
         try:
             df = pd.read_csv(url)
-            options[key] = dict(zip(df.iloc[:, 0], df.iloc[:, 1]))
+            options[key] = dict(zip(df.iloc[:, 0], df.iloc[:, 0]))
         except Exception as e:
             st.warning(f"無法載入「{sheet_name}」選項，請檢查分享權限或欄位格式。")
             options[key] = {}
