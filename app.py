@@ -18,7 +18,7 @@ def load_dropdown_options():
     for key, sheet_name in SHEET_NAME_MAP.items():
         url = base_url + sheet_name
         try:
-            df = pd.read_csv(url, header=None)
+            df = pd.read_csv(url, header=None, encoding='utf-8')
             options[key] = dict(zip(df[0], df[0]))  # 取第一欄作為選單
         except Exception as e:
             st.warning(f"無法載入「{sheet_name}」選項，請檢查分享權限或欄位格式。\n{e}")
