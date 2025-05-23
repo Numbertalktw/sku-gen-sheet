@@ -29,7 +29,6 @@ def load_dropdown_options():
         url = base_url + sheet_name
         try:
             df = fetch_csv_with_requests(url)
-            # 若只有一欄就用自己對自己，若兩欄就用[0]=顯示、[1]=代碼
             if df.shape[1] >= 2:
                 options[key] = dict(zip(df[0], df[1]))  # 中文名稱 → 代碼
             else:
@@ -37,7 +36,7 @@ def load_dropdown_options():
             st.write(f"✅ 成功載入「{sheet_name}」，共 {len(df)} 筆")
         except Exception as e:
             error_msg = traceback.format_exc()
-            st.warning(f"⚠️ 無法載入「{sheet_name}」，請檢查分享權限或欄位格式。\n\n錯誤訊息:\n{error_msg}")
+            st.warning(f"⚠️ 無法載入「{sheet_name}」，請檢查分享權限或欄位格式。\n\n錯誤訊息：\n{error_msg}")
             options[key] = {}
 
     return options
