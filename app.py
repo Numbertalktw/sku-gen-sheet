@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import traceback  # 放在最上面也可以
 
 # Google Sheets 設定
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1AzJ6IJayXV7yooFJyWRhDvD0cDGWTexl_hjjtVF4JGs"
@@ -22,8 +23,8 @@ def load_dropdown_options():
             options[key] = dict(zip(df[0], df[0]))  # 取第一欄作為選單
             st.write(f"✅ 已成功載入「{sheet_name}」，共 {len(df)} 筆")
         except Exception as e:
-            error_msg = str(e).encode('utf-8', errors='ignore').decode()
-            st.warning(f"⚠️ 無法載入「{sheet_name}」選項，請檢查分享權限或欄位格式。\n錯誤訊息: {error_msg}")
+            error_msg = traceback.format_exc()
+            st.warning(f"⚠️ 無法載入「{sheet_name}」，請檢查分享權限或欄位格式。\n\n錯誤訊息:\n{error_msg}")
             options[key] = {}
     return options
 
