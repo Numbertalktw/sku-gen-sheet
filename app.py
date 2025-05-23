@@ -21,8 +21,10 @@ def load_dropdown_options():
             df = pd.read_csv(url, header=None, encoding='utf-8')
             options[key] = dict(zip(df[0], df[0]))  # 取第一欄作為選單
         except Exception as e:
-            st.warning(f"無法載入「{sheet_name}」選項，請檢查分享權限或欄位格式。\n{e}")
+            error_msg = str(e).encode('utf-8', errors='ignore').decode()
+            st.warning(f"無法載入「{sheet_name}」選項，請檢查分享權限或欄位格式。\n錯誤訊息: {error_msg}")
             options[key] = {}
+
     return options
 
 def generate_sku(category, feature, color, size):
