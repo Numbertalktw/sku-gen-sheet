@@ -13,13 +13,12 @@ SHEET_NAME_MAP = {
     "size": "尺寸"
 }
 
-# 使用 requests 安全載入 CSV
+# 從 Google Sheet 載入 CSV 並讀取兩欄（中文名稱 + 代碼）
 def fetch_csv_with_requests(url):
     response = requests.get(url)
     response.raise_for_status()
     return pd.read_csv(io.StringIO(response.text), header=None)
 
-# 快取資料選項
 @st.cache_data(show_spinner=False)
 def load_dropdown_options():
     sheet_id = SHEET_URL.split("/")[5]
@@ -30,9 +29,11 @@ def load_dropdown_options():
         url = base_url + sheet_name
         try:
             df = fetch_csv_with_requests(url)
-            # 過濾空白列
-            df = df[df[0].notna() & (df[0].astype(str).str.strip() != "")]
-            options[key] = dict(zip(df[0], df[0]))
+            # 若只有一欄就用自己對自己，若兩欄就用[0]=顯示、[1]=代碼
+            if df.shape[1] >= 2:
+                options[key] = dict(zip(df[0], df[1]))  # 中文名稱 → 代碼
+            else:
+                options[key] = dict(zip(df[0], df[0]))  # fallback
             st.write(f"✅ 成功載入「{sheet_name}」，共 {len(df)} 筆")
         except Exception as e:
             error_msg = traceback.format_exc()
@@ -41,32 +42,28 @@ def load_dropdown_options():
 
     return options
 
-# SKU 組合邏輯
 def generate_sku(category, feature, color, size):
     return f"{category}-{feature}-{color}-{size}"
 
-# UI 設定
+# UI
 st.set_page_config(page_title="Product SKU Generator", layout="centered")
 st.title("🧾 Product SKU Generator")
 
-# 加入手動重新載入選單資料按鈕
+# 重新載入選單按鈕
 if st.button("🔄 重新載入選單資料"):
     st.cache_data.clear()
     st.rerun()
 
-# 載入下拉選單資料
 options = load_dropdown_options()
 
-# 排列順序：分類 → 特徵 → 顏色 → 尺寸
 col1, col2 = st.columns(2)
 with col1:
-    category = st.selectbox("Product Category", options.get("category", {}).keys())
-    feature = st.selectbox("Feature", options.get("feature", {}).keys())
+    category = st.selectbox("Product Category", list(options.get("category", {}).keys()))
+    feature = st.selectbox("Feature", list(options.get("feature", {}).keys()))
 with col2:
-    color = st.selectbox("Color", options.get("color", {}).keys())
-    size = st.selectbox("Size", options.get("size", {}).keys())
+    color = st.selectbox("Color", list(options.get("color", {}).keys()))
+    size = st.selectbox("Size", list(options.get("size", {}).keys()))
 
-# 按鈕產生 SKU
 if st.button("➕ Generate SKU"):
     if category and feature and color and size:
         sku = generate_sku(
