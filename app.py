@@ -12,7 +12,7 @@ SHEET_NAME_MAP = {
 }
 
 # 加入參數 clear_on_reload
-@st.cache_data(show_spinner=False, clear_on_reload=True)
+@st.cache_data(show_spinner=False)
 def load_dropdown_options():
     sheet_id = SHEET_URL.split("/")[5]
     base_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet="
