@@ -35,9 +35,10 @@ def generate_sku(category, feature, color, size):
 st.set_page_config(page_title="Product SKU Generator", layout="centered")
 st.title("🧾 Product SKU Generator")
 
-# ✅ 加入「重新載入選單資料」按鈕
+# ✅ 按鈕清除快取
 if st.button("🔄 重新載入選單資料"):
     st.cache_data.clear()
+    st.rerun()  # ⬅️ 強制重新執行 App
 
 options = load_dropdown_options()
 
