@@ -19,7 +19,7 @@ def fetch_csv_with_requests(url):
     response.raise_for_status()
     return pd.read_csv(io.StringIO(response.text), header=None)
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, clear_on_reload=True)
 def load_dropdown_options():
     sheet_id = SHEET_URL.split("/")[5]
     base_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet="
@@ -44,6 +44,11 @@ def generate_sku(category, feature, color, size):
 # UI
 st.set_page_config(page_title="Product SKU Generator", layout="centered")
 st.title("🧾 Product SKU Generator")
+
+# ✅ 加入強制清除 cache 的按鈕
+if st.button("🔄 重新載入選單資料"):
+    st.cache_data.clear()
+    st.rerun()
 
 options = load_dropdown_options()
 
